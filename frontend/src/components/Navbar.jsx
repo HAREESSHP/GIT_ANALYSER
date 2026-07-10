@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import './Navbar.css';
 
 export default function Navbar() {
@@ -21,10 +22,10 @@ export default function Navbar() {
         </button>
 
         <ul className={`navbar-menu ${isMenuOpen ? 'active' : ''}`}>
-          <li><a href="#home">Home</a></li>
-          <li><a href="#features">Features</a></li>
-          <li><a href="#api">API</a></li>
-          <li><a href="#about">About</a></li>
+          <li><NavLink to="/" onClick={() => setIsMenuOpen(false)}>Home</NavLink></li>
+          <li><NavLink to="/features" onClick={() => setIsMenuOpen(false)}>Features</NavLink></li>
+          <li><NavLink to="/api" onClick={() => setIsMenuOpen(false)}>API</NavLink></li>
+          <li><NavLink to="/about" onClick={() => setIsMenuOpen(false)}>About</NavLink></li>
         </ul>
       </div>
     </nav>
