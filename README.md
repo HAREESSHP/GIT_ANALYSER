@@ -1,5 +1,6 @@
 # GitHub Insight - Production-Ready GitHub Analytics Dashboard
 
+**checkout:**[text](https://git-analyser-kappa.vercel.app/)
 A professional full-stack SaaS application for analyzing GitHub profiles. Search any GitHub user, get deep insights into their repositories, statistics, activity, and more—all displayed in a beautiful dashboard.
 
 **Perfect for:** Portfolio projects, internship applications, and production deployments.
