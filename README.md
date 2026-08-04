@@ -17,6 +17,7 @@ A professional full-stack SaaS application for analyzing GitHub profiles. Search
 - 📱 **Fully Responsive** - Works perfectly on mobile, tablet, and desktop
 - ⚡ **Professional Design** - Modern SaaS aesthetic with pure CSS
 - 🚀 **Production Ready** - Deploy to Vercel and Render
+- 🤖 **AI Assistant (RAG)** - Ask natural-language questions about any profile, answered with grounded data (free, local)
 
 ## 🛠 Tech Stack
 
@@ -36,6 +37,11 @@ A professional full-stack SaaS application for analyzing GitHub profiles. Search
 - **Frontend:** Vercel
 - **Backend:** Render (or Vercel API)
 - **Database:** MySQL (Railway, PlanetScale, or managed service)
+
+### RAG (Optional, Free)
+- **Cloud mode (default)** - Google Gemini API (free tier, no downloads, no credit card)
+- **Local mode** - Ollama + ChromaDB (fully offline)
+- See [RAG_SETUP.md](RAG_SETUP.md) for full setup instructions
 
 ## 📁 Project Structure
 
@@ -148,6 +154,26 @@ sudo mysql < backend/schema.sql
 3. View analytics dashboard
 
 ## 📋 API Endpoints
+
+### POST /api/ask
+Ask a natural-language question about a GitHub profile (RAG).
+
+**Request:**
+```json
+{ "question": "What is this developer strongest at?", "username": "torvalds" }
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "answer": "Based on the repositories, this developer is strongest at...",
+  "sources": [ { "repo": "linux", "text": "..." } ]
+}
+```
+
+### GET /api/rag/status
+Check if RAG services (Ollama + ChromaDB) are available.
 
 ### POST /api/analyze
 Analyze a GitHub profile.

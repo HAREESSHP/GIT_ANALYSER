@@ -72,8 +72,22 @@ const bookmarkSchema = new mongoose.Schema({
 bookmarkSchema.index({ recruiter_id: 1 });
 bookmarkSchema.index({ status: 1 });
 
+// RAG chunk schema - persists vector store data in MongoDB
+const ragChunkSchema = new mongoose.Schema({
+  username: { type: String, required: true },
+  id: { type: String, required: true },
+  text: { type: String, required: true },
+  metadata: { type: Object, default: {} },
+  embedding: { type: [Number], required: true },
+  created_at: { type: Date, default: Date.now },
+}, { collection: 'rag_chunks' });
+
+ragChunkSchema.index({ username: 1 });
+ragChunkSchema.index({ id: 1 }, { unique: true });
+
 // Create Models
 export const Profile = mongoose.model('Profile', profileSchema);
 export const Repository = mongoose.model('Repository', repositorySchema);
 export const Analytics = mongoose.model('Analytics', analyticsSchema);
 export const Bookmark = mongoose.model('Bookmark', bookmarkSchema);
+export const RagChunk = mongoose.model('RagChunk', ragChunkSchema);

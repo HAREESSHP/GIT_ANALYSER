@@ -5,11 +5,13 @@ import { connectDB, Profile, Repository, Analytics, Bookmark } from './db.js';
 import {
   getUserProfile,
   getUserRepositories,
+  getRepoContent,
   extractUsernameFromUrl,
   analyzeRepositories,
   calculateTechStack,
   calculateActivityMetrics,
 } from './github.js';
+import { initRag, indexUserRepos, askRag } from './rag.js';
 
 dotenv.config();
 
@@ -35,6 +37,9 @@ app.use(express.json());
 
 // Connect to MongoDB
 connectDB();
+
+// Initialize RAG (non-blocking - won't crash if ChromaDB isn't running)
+initRag();
 
 // POST /api/analyze - Analyze a GitHub profile
 app.post('/api/analyze', async (req, res) => {
@@ -107,6 +112,22 @@ app.post('/api/analyze', async (req, res) => {
       },
       { upsert: true }
     );
+
+    // Index repositories into vector store for RAG (non-blocking)
+    // Fetch README + source files from top repos for deeper analysis
+    (async () => {
+      try {
+        const topRepos = repos.slice(0, 5);
+        const repoContents = {};
+        for (const repo of topRepos) {
+          const content = await getRepoContent(profile.login, repo.name);
+          repoContents[repo.name] = content;
+        }
+        await indexUserRepos(profile.login, repos, repoContents);
+      } catch (err) {
+        console.error('RAG indexing failed (optional):', err.message);
+      }
+    })();
 
     res.json({
       success: true,
@@ -372,6 +393,63 @@ app.get('/api/recruiter/bookmarks', async (req, res) => {
   } catch (error) {
     console.error('Error fetching bookmarks:', error.message);
     res.status(500).json({ error: 'Failed to fetch bookmarks' });
+  }
+});
+
+// POST /api/ask - Ask a question about a GitHub profile (RAG)
+app.post('/api/ask', async (req, res) => {
+  try {
+    const { question, username } = req.body;
+
+    if (!question || !username) {
+      return res.status(400).json({ error: 'Please provide both question and username' });
+    }
+
+    const result = await askRag(question, username);
+
+    res.json({
+      success: true,
+      answer: result.answer,
+      sources: result.sources,
+    });
+  } catch (error) {
+    console.error('Error in RAG ask:', error.message);
+    res.status(500).json({ error: error.message || 'Failed to generate answer' });
+  }
+});
+
+// GET /api/rag/status - Check if RAG services are available
+app.get('/api/rag/status', async (req, res) => {
+  try {
+    const ragMode = process.env.RAG_MODE || 'cloud';
+
+    if (ragMode === 'cloud') {
+      // Cloud mode: just need a Gemini API key
+      const hasKey = !!(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim() !== '' && !process.env.GEMINI_API_KEY.startsWith('your_'));
+      return res.json({ mode: 'cloud', ready: hasKey, gemini: hasKey });
+    }
+
+    // Local mode: check Ollama + ChromaDB
+    const { default: axios } = await import('axios');
+    const ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434';
+    const chromaUrl = process.env.CHROMA_URL || 'http://localhost:8000';
+
+    let ollama = false;
+    let chroma = false;
+
+    try {
+      const r = await axios.get(`${ollamaUrl}/api/tags`, { timeout: 3000 });
+      ollama = r.status === 200;
+    } catch { /* not available */ }
+
+    try {
+      const r = await axios.get(`${chromaUrl}/api/v1/heartbeat`, { timeout: 3000 });
+      chroma = r.status === 200;
+    } catch { /* not available */ }
+
+    res.json({ mode: 'local', ready: ollama && chroma, ollama, chroma });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to check RAG status' });
   }
 });
 

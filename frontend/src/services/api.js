@@ -29,4 +29,12 @@ export const deleteProfile = (username) => {
   return api.delete(`/api/profile/${username}`);
 };
 
+export const askQuestion = (question, username) => {
+  return api.post('/api/ask', { question, username });
+};
+
+export const getRagStatus = () => {
+  return api.get('/api/rag/status');
+};
+
 export default api;

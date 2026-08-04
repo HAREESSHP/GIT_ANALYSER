@@ -51,6 +51,65 @@ export async function getUserRepositories(username) {
   }
 }
 
+// Fetch the README and key source files from a repository
+export async function getRepoContent(username, repoName) {
+  try {
+    const content = { readme: null, files: [] };
+
+    // Try to fetch README (various common names)
+    const readmeNames = ['README.md', 'readme.md', 'README', 'Readme.md'];
+    for (const name of readmeNames) {
+      try {
+        const r = await axios.get(
+          `${GITHUB_API_URL}/repos/${username}/${repoName}/contents/${name}`,
+          { headers: getHeaders() }
+        );
+        if (r.data.content) {
+          content.readme = Buffer.from(r.data.content, 'base64').toString('utf-8').slice(0, 4000);
+          break;
+        }
+      } catch { /* try next name */ }
+    }
+
+    // Fetch top-level directory listing
+    let files = [];
+    try {
+      const r = await axios.get(
+        `${GITHUB_API_URL}/repos/${username}/${repoName}/contents/`,
+        { headers: getHeaders() }
+      );
+      files = r.data;
+    } catch { /* no contents */ }
+
+    // Fetch a few key source files (limit to avoid rate limits)
+    const sourceExtensions = ['.js', '.ts', '.py', '.java', '.go', '.rb', '.php', '.c', '.cpp', '.cs', '.swift', '.rs', '.html', '.css', '.json'];
+    const interestingNames = ['package.json', 'requirements.txt', 'Dockerfile', 'docker-compose.yml', 'Makefile', 'setup.py', 'pyproject.toml', 'go.mod', 'Cargo.toml', 'pom.xml', 'build.gradle'];
+
+    const candidates = files
+      .filter((f) => f.type === 'file')
+      .filter((f) => {
+        const lower = f.name.toLowerCase();
+        return interestingNames.includes(lower) || sourceExtensions.some((ext) => lower.endsWith(ext));
+      })
+      .slice(0, 5);
+
+    for (const file of candidates) {
+      try {
+        const r = await axios.get(file.download_url, { headers: getHeaders() });
+        const text = typeof r.data === 'string' ? r.data : JSON.stringify(r.data);
+        content.files.push({
+          name: file.name,
+          content: text.slice(0, 2000),
+        });
+      } catch { /* skip file */ }
+    }
+
+    return content;
+  } catch (error) {
+    return { readme: null, files: [] };
+  }
+}
+
 export function extractUsernameFromUrl(input) {
   // Check if it's a URL
   if (input.includes('github.com/')) {

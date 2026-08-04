@@ -1,6 +1,7 @@
 import './Dashboard.css';
 import { useState, useEffect } from 'react';
 import api from '../services/api.js';
+import AIAssistant from './AIAssistant';
 
 export default function Dashboard({ data }) {
   if (!data) return null;
@@ -246,6 +247,9 @@ export default function Dashboard({ data }) {
             </div>
           </div>
         )}
+
+        {/* AI Assistant (RAG) */}
+        <AIAssistant username={profile.username} />
       </div>
     </section>
   );
