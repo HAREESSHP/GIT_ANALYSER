@@ -51,7 +51,7 @@ function renderMarkdown(text) {
   return html;
 }
 
-export default function AIAssistant({ username }) {
+export default function AIAssistant({ username, compact = false }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -124,24 +124,26 @@ export default function AIAssistant({ username }) {
   ];
 
   return (
-    <div className="ai-assistant">
-      <div className="ai-header">
-        <div className="ai-title">
-          <span className="ai-icon">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2V7zm0 8h2v2h-2v-2z"/>
-            </svg>
-          </span>
-          <div>
-            <h3>AI Assistant</h3>
-            <p>Ask questions about @{username}'s GitHub profile</p>
+    <div className={`ai-assistant ${compact ? 'compact' : ''}`}>
+      {!compact && (
+        <div className="ai-header">
+          <div className="ai-title">
+            <span className="ai-icon">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2V7zm0 8h2v2h-2v-2z"/>
+              </svg>
+            </span>
+            <div>
+              <h3>AI Assistant</h3>
+              <p>Ask questions about @{username}'s GitHub profile</p>
+            </div>
           </div>
+          <span className={`ai-status ${ragAvailable ? 'online' : 'offline'}`}>
+            <span className="ai-status-dot"></span>
+            {ragAvailable === null ? 'Checking...' : ragAvailable ? 'RAG Ready' : 'RAG Offline'}
+          </span>
         </div>
-        <span className={`ai-status ${ragAvailable ? 'online' : 'offline'}`}>
-          <span className="ai-status-dot"></span>
-          {ragAvailable === null ? 'Checking...' : ragAvailable ? 'RAG Ready' : 'RAG Offline'}
-        </span>
-      </div>
+      )}
 
       {ragAvailable === false && (
         <div className="ai-warning">

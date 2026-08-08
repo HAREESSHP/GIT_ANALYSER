@@ -498,3 +498,26 @@
     padding: 0.75rem 1rem;
   }
 }
+
+/* Compact mode (inside chat drawer) */
+.ai-assistant.compact {
+  margin-top: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  height: 100%;
+}
+
+.ai-assistant.compact .ai-messages {
+  min-height: 0;
+  max-height: none;
+  flex: 1;
+}
+
+.ai-assistant.compact .ai-input-form {
+  border-radius: 0;
+}
+
+.ai-assistant.compact .ai-empty {
+  padding: 1.5rem 1rem;
+}
