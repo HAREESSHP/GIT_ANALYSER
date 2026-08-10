@@ -235,33 +235,77 @@ export async function indexUserRepos(username, repos, repoContents = {}) {
   if (chunks.length === 0) return { success: true, indexed: 0 };
 
   if (RAG_MODE === 'cloud') {
-    // Generate embeddings
-    const embeddings = await embed(chunks.map((c) => c.text));
-    const stored = chunks.map((c, i) => ({
-      ...c,
-      embedding: embeddings[i],
-    }));
-
-    // Update in-memory cache
-    vectorStore.set(username, stored);
-
-    // Persist to MongoDB so data survives restarts
+    // Try to reuse existing embeddings to avoid re-embedding unchanged chunks.
+    // 1) Load existing chunks from DB for this user
+    let existing = [];
     try {
-      await RagChunk.deleteMany({ username });
-      await RagChunk.insertMany(
-        stored.map((c) => ({
-          username,
-          id: c.id,
-          text: c.text,
-          metadata: c.metadata,
-          embedding: c.embedding,
-        }))
-      );
+      existing = await RagChunk.find({ username });
     } catch (err) {
-      console.error('Failed to persist RAG chunks to MongoDB:', err.message);
+      console.error('Failed to load existing RAG chunks from MongoDB:', err.message);
     }
 
-    return { success: true, indexed: chunks.length };
+    const existingMap = new Map();
+    existing.forEach((e) => existingMap.set(e.id, e));
+
+    // 2) Determine which texts need new embeddings
+    const textsToEmbed = [];
+    const embedIndexMap = []; // map from embed result index to chunk index
+
+    const stored = await Promise.all(
+      chunks.map(async (c, i) => {
+        const found = existingMap.get(c.id);
+        if (found && found.text === c.text && found.embedding && found.embedding.length > 0) {
+          return { ...c, embedding: found.embedding };
+        }
+        // mark for embedding later
+        embedIndexMap.push(i);
+        textsToEmbed.push(c.text);
+        return { ...c, embedding: null };
+      })
+    );
+
+    // 3) Embed only the new/changed texts
+    if (textsToEmbed.length > 0) {
+      try {
+        const newEmbeddings = await embed(textsToEmbed);
+        newEmbeddings.forEach((emb, k) => {
+          const chunkIdx = embedIndexMap[k];
+          if (typeof chunkIdx === 'number') stored[chunkIdx].embedding = emb;
+        });
+      } catch (err) {
+        console.error('Embedding failed during indexing:', err.message);
+        // Fallback: remove any partially embedded chunks
+        for (const idx of embedIndexMap) stored[idx].embedding = null;
+      }
+    }
+
+    // 4) Update in-memory cache
+    const filteredStored = stored.filter((s) => s.embedding && s.embedding.length > 0);
+    vectorStore.set(username, filteredStored);
+
+    // 5) Persist to MongoDB using bulk upserts to avoid full deletes/inserts
+    try {
+      const ops = stored.map((c) => ({
+        updateOne: {
+          filter: { username, id: c.id },
+          update: {
+            $set: {
+              username,
+              id: c.id,
+              text: c.text,
+              metadata: c.metadata,
+              embedding: c.embedding,
+            },
+          },
+          upsert: true,
+        },
+      }));
+      if (ops.length > 0) await RagChunk.bulkWrite(ops);
+    } catch (err) {
+      console.error('Failed to persist RAG chunks to MongoDB (bulk upsert):', err.message);
+    }
+
+    return { success: true, indexed: filteredStored.length };
   }
 
   // Local mode - ChromaDB
@@ -379,10 +423,40 @@ FORMATTING RULES (very important):
 5. Keep it concise but informative - 2-5 short paragraphs or a few bullet points.
 6. If the context doesn't contain the answer, say "I don't have enough information about that from this profile's repositories."`;
 
+  // Stronger instruction: always finish with one short concluding sentence summarizing the answer.
+  // This reduces omitted conclusions; an extra local check will append one if the LLM still omits it.
+  const enhancedSystemPrompt = systemPrompt.replace('\n 6. If the context', '\n 6. If the context') + '\n\nIMPORTANT: Always end your answer with one short concluding sentence (one line) that summarizes the main point of the answer.';
+
   if (RAG_MODE === 'cloud') {
-    return await generateGemini(systemPrompt, context, question);
+    return await generateGemini(enhancedSystemPrompt, context, question);
   }
-  return await generateOllama(systemPrompt, context, question);
+  return await generateOllama(enhancedSystemPrompt, context, question);
+}
+
+// Ensure the final answer contains a one-line conclusion. If missing, request a single-sentence conclusion
+// from the model and append it. This adds one extra LLM call only when needed.
+async function ensureConclusion(answerText) {
+  try {
+    const conclRegex = /(in conclusion|to summarize|in short|summary:|conclusion:|overall:)/i;
+    if (conclRegex.test(answerText)) return answerText;
+
+    const sys = 'You are a concise assistant. Produce ONE short concluding sentence (no extra text) that summarizes the provided answer.';
+    const followupQuestion = 'Please write a single concise concluding sentence summarizing the answer above. Output ONLY the sentence.';
+
+    let concl = '';
+    if (RAG_MODE === 'cloud') {
+      concl = await generateGemini(sys, answerText, followupQuestion);
+    } else {
+      concl = await generateOllama(sys, answerText, followupQuestion);
+    }
+
+    concl = (concl || '').trim().split('\n')[0];
+    if (!concl) return answerText;
+    return answerText.trim() + '\n\nConclusion: ' + concl.replace(/\s+/g, ' ').trim();
+  } catch (err) {
+    console.error('ensureConclusion failed:', err.message);
+    return answerText;
+  }
 }
 
 // Google Gemini generation (free tier)
@@ -463,7 +537,10 @@ export async function askRag(question, username) {
     };
   }
 
-  const answer = await generateAnswer(question, chunks);
+  let answer = await generateAnswer(question, chunks);
+
+  // Ensure a short concluding sentence is present; append one if the model omitted it.
+  answer = await ensureConclusion(answer);
 
   return {
     answer,

@@ -130,7 +130,7 @@ export default function AIAssistant({ username, compact = false }) {
           <div className="ai-title">
             <span className="ai-icon">
               <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2V7zm0 8h2v2h-2v-2z"/>
+                <path d="M5 4h14a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-6.2L8.6 20.7A1 1 0 0 1 7 20v-3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3zm3 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
               </svg>
             </span>
             <div>
@@ -159,7 +159,7 @@ export default function AIAssistant({ username, compact = false }) {
           <div className="ai-empty">
             <div className="ai-empty-icon">
               <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
-                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/>
+                  <path d="M5 4h14a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-6.2L8.6 20.7A1 1 0 0 1 7 20v-3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3zm3 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
               </svg>
             </div>
             <p className="ai-empty-title">Ask anything about this profile</p>
@@ -188,7 +188,7 @@ export default function AIAssistant({ username, compact = false }) {
                   </svg>
                 ) : (
                   <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2V7zm0 8h2v2h-2v-2z"/>
+                    <path d="M5 4h14a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-6.2L8.6 20.7A1 1 0 0 1 7 20v-3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3zm3 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
                   </svg>
                 )}
               </div>
@@ -231,7 +231,7 @@ export default function AIAssistant({ username, compact = false }) {
           <div className="ai-message assistant">
             <div className="ai-message-avatar">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2V7zm0 8h2v2h-2v-2z"/>
+                <path d="M5 4h14a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3h-6.2L8.6 20.7A1 1 0 0 1 7 20v-3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3zm3 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm4 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/>
               </svg>
             </div>
             <div className="ai-message-body">
