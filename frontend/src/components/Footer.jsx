@@ -28,7 +28,10 @@ export default function Footer() {
                 <path d="M3 5.5C3 4.67 3.67 4 4.5 4H7c.55 0 1 .45 1 1v2.5c0 .83-.67 1.5-1.5 1.5H6C4.34 9 3 7.66 3 5.5z" stroke="#9FD3FF" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M21 18.5c0 .83-.67 1.5-1.5 1.5H18c-.55 0-1-.45-1-1V16.5c0-.83.67-1.5 1.5-1.5H20c1.66 0 3 1.34 3 3v0z" stroke="#9FD3FF" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <a href="tel:+919059332805">+91 90593 32805</a>
+              <div className="contact-group">
+                <a href="tel:+919059332805">+91 90593 32805</a>
+                <a href="tel:+919346315298">+91 93463 15298</a>
+              </div>
             </li>
 
             <li>
@@ -36,7 +39,10 @@ export default function Footer() {
                 <path d="M4 6.5h16v11a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-11z" stroke="#9FD3FF" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
                 <path d="M22 6.5l-10 7L2 6.5" stroke="#9FD3FF" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-              <a href="mailto:chintit401@gmail.com">chintit401@gmail.com</a>
+              <div className="contact-group">
+                <a href="mailto:chintit401@gmail.com">chintit401@gmail.com</a>
+                <a href="mailto:bagayithiharish@gmail.com">bagayithiharish@gmail.com</a>
+              </div>
             </li>
 
             <li>
