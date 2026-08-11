@@ -50,9 +50,14 @@
   transition: color 0.2s;
 }
 
-.navbar-menu li a:hover {
+.navbar-menu li a:hover, .navbar-menu li a.active {
   color: var(--accent-color);
   text-decoration: none;
+}
+
+.navbar-menu li a.active {
+  font-weight: 600;
+  border-bottom: 2px solid var(--accent-color);
 }
 
 .hamburger {

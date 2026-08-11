@@ -1,29 +1,25 @@
-import { useState } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import Dashboard from './components/Dashboard';
 import Footer from './components/Footer';
+import Home from './pages/Home';
+import Features from './pages/Features';
+import Api from './pages/Api';
+import About from './pages/About';
 import './App.css';
 
 export default function App() {
-  const [dashboardData, setDashboardData] = useState(null);
-
-  const handleAnalyze = (data) => {
-    setDashboardData(data);
-    setTimeout(() => {
-      const dashboardElement = document.getElementById('dashboard');
-      if (dashboardElement) {
-        dashboardElement.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
-  };
-
   return (
-    <div className="app">
-      <Navbar />
-      <Hero onAnalyze={handleAnalyze} />
-      {dashboardData && <Dashboard data={dashboardData} />}
-      <Footer />
-    </div>
+    <BrowserRouter>
+      <div className="app">
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/features" element={<Features />} />
+          <Route path="/api" element={<Api />} />
+          <Route path="/about" element={<About />} />
+        </Routes>
+        <Footer />
+      </div>
+    </BrowserRouter>
   );
 }
