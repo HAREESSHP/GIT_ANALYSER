@@ -22,7 +22,7 @@ dotenv.config();
 const RAG_MODE = process.env.RAG_MODE || 'cloud';
 
 // --- Cloud (Gemini) config ---
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const getGeminiApiKey = () => (process.env.GEMINI_API_KEY || '').trim();
 const GEMINI_EMBED_MODEL = process.env.GEMINI_EMBED_MODEL || 'text-embedding-004';
 const GEMINI_LLM_MODEL = process.env.GEMINI_LLM_MODEL || 'gemini-1.5-flash';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta';
@@ -48,8 +48,10 @@ let retryTimer = null;
 // ============================================================
 
 export async function initRag() {
-  if (RAG_MODE === 'cloud') {
-    if (!GEMINI_API_KEY) {
+  const ragMode = process.env.RAG_MODE || 'cloud';
+  if (ragMode === 'cloud') {
+    const key = getGeminiApiKey();
+    if (!key || key.startsWith('your_')) {
       console.log('ℹ️ RAG is in cloud mode but GEMINI_API_KEY is not set.');
       console.log('   Get a free key at: https://aistudio.google.com/apikey');
       console.log('   Add it to backend/.env as GEMINI_API_KEY=your_key');
@@ -125,7 +127,7 @@ async function embedGemini(texts) {
     try {
       if (texts.length === 1) {
         const response = await axios.post(
-          `${GEMINI_API_URL}/models/${model}:embedContent?key=${GEMINI_API_KEY}`,
+          `${GEMINI_API_URL}/models/${model}:embedContent?key=${getGeminiApiKey()}`,
           {
             model: `models/${model}`,
             content: { parts: [{ text: texts[0] }] },
@@ -135,7 +137,7 @@ async function embedGemini(texts) {
       }
 
       const response = await axios.post(
-        `${GEMINI_API_URL}/models/${model}:batchEmbedContents?key=${GEMINI_API_KEY}`,
+        `${GEMINI_API_URL}/models/${model}:batchEmbedContents?key=${getGeminiApiKey()}`,
         {
           model: `models/${model}`,
           requests: texts.map((text) => ({
@@ -477,7 +479,7 @@ async function generateGemini(systemPrompt, context, question) {
   for (const model of modelsToTry) {
     try {
       const response = await axios.post(
-        `${GEMINI_API_URL}/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+        `${GEMINI_API_URL}/models/${model}:generateContent?key=${getGeminiApiKey()}`,
         {
           contents: [
             {
