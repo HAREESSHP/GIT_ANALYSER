@@ -213,13 +213,24 @@ Delete a profile from database.
 
 ### Frontend on Vercel
 
+#### ⚡ Method 1: Direct Vercel CLI Deployment (Instant)
+Deploy your latest local code directly to Vercel production using the Vercel CLI:
+
 ```bash
-cd frontend
-npm run build
-# Then connect to Vercel dashboard or:
-npm install -g vercel
-vercel
+# Run from repository root or frontend folder
+npx vercel --prod
 ```
+*Live Production URL: [https://git-analyser-kappa.vercel.app/](https://git-analyser-kappa.vercel.app/)*
+
+#### 🔄 Method 2: Automatic GitHub Push Deployment
+Commit and push code directly to the `main` branch. GitHub and Vercel are connected to automatically trigger production builds:
+
+```bash
+git add .
+git commit -m "feat: update feature"
+git push origin main
+```
+*Vercel automatically detects the GitHub push, builds the `frontend`, and updates production.*
 
 ### Backend on Render
 
