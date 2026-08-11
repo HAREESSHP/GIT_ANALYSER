@@ -59,6 +59,10 @@ export default function Footer() {
           <h4>FOLLOW US</h4>
 
           <div className="socials">
+            <a className="social-btn" href="https://www.linkedin.com/in/hareesh-ai-dev/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="Hareesh LinkedIn">
+              <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg" fill="#CFCFCF"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.761 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.268c-.966 0-1.75-.789-1.75-1.762s.784-1.762 1.75-1.762 1.75.789 1.75 1.762-.784 1.762-1.75 1.762zm13.5 11.268h-3v-5.604c0-1.337-.026-3.058-1.864-3.058-1.866 0-2.152 1.459-2.152 2.966v5.696h-3v-10h2.882v1.367h.041c.401-.758 1.379-1.558 2.84-1.558 3.038 0 3.6 2.001 3.6 4.601v5.59z"/></svg>
+            </a>
+
             <a className="social-btn" href="https://www.linkedin.com/in/pavan-sai-varshith" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="Ega Pavan Sai Varshith LinkedIn">
               <svg viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg" fill="#CFCFCF"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.761 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-10h3v10zm-1.5-11.268c-.966 0-1.75-.789-1.75-1.762s.784-1.762 1.75-1.762 1.75.789 1.75 1.762-.784 1.762-1.75 1.762zm13.5 11.268h-3v-5.604c0-1.337-.026-3.058-1.864-3.058-1.866 0-2.152 1.459-2.152 2.966v5.696h-3v-10h2.882v1.367h.041c.401-.758 1.379-1.558 2.84-1.558 3.038 0 3.6 2.001 3.6 4.601v5.59z"/></svg>
             </a>
@@ -76,7 +80,7 @@ export default function Footer() {
 
       <div className="footer-bottom">
         <p className="credits-text">
-          Designed & developed by <a href="https://www.linkedin.com/in/pavan-sai-varshith" target="_blank" rel="noopener noreferrer" className="credit-link">Ega Pavan Sai Varshith</a>, <span className="credit-name">HAREESH</span> & <a href="https://www.linkedin.com/in/rahul-ai-dev" target="_blank" rel="noopener noreferrer" className="credit-link">Rahul</a>
+          Designed & developed by <a href="https://www.linkedin.com/in/pavan-sai-varshith" target="_blank" rel="noopener noreferrer" className="credit-link">Ega Pavan Sai Varshith</a>, <a href="https://www.linkedin.com/in/hareesh-ai-dev/" target="_blank" rel="noopener noreferrer" className="credit-link">HAREESH</a> & <a href="https://www.linkedin.com/in/rahul-ai-dev" target="_blank" rel="noopener noreferrer" className="credit-link">Rahul</a>
         </p>
         <span className="dot-divider">•</span>
         <p className="credits-text">
