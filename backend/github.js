@@ -21,13 +21,23 @@ export async function getUserProfile(username) {
     return response.data;
   } catch (error) {
     if (error.response?.status === 401) {
-      throw new Error('Invalid GitHub API token. Please update GITHUB_API_TOKEN in backend/.env');
+      console.warn('GitHub API Token returned 401. Retrying without Authorization header...');
+      try {
+        const fallbackRes = await axios.get(`${GITHUB_API_URL}/users/${username}`, {
+          headers: { Accept: 'application/vnd.github.v3+json' },
+        });
+        return fallbackRes.data;
+      } catch (fallbackErr) {
+        if (fallbackErr.response?.status === 404) throw new Error('GitHub user not found');
+        if (fallbackErr.response?.status === 403) throw new Error('GitHub API rate limit exceeded. Please try again later.');
+        throw fallbackErr;
+      }
     }
     if (error.response?.status === 404) {
       throw new Error('GitHub user not found');
     }
     if (error.response?.status === 403) {
-      throw new Error('GitHub API rate limit exceeded');
+      throw new Error('GitHub API rate limit exceeded. Please try again in a few minutes.');
     }
     throw error;
   }
@@ -45,11 +55,20 @@ export async function getUserRepositories(username) {
     });
     return response.data;
   } catch (error) {
+    if (error.response?.status === 401) {
+      try {
+        const fallbackRes = await axios.get(`${GITHUB_API_URL}/users/${username}/repos`, {
+          headers: { Accept: 'application/vnd.github.v3+json' },
+          params: { per_page: 100, sort: 'updated', direction: 'desc' },
+        });
+        return fallbackRes.data;
+      } catch (fallbackErr) {
+        if (fallbackErr.response?.status === 404) throw new Error('GitHub user not found');
+        throw fallbackErr;
+      }
+    }
     if (error.response?.status === 404) {
       throw new Error('GitHub user not found');
-    }
-    if (error.response?.status === 403) {
-      throw new Error('GitHub API rate limit exceeded');
     }
     throw error;
   }
