@@ -23,8 +23,8 @@ const RAG_MODE = process.env.RAG_MODE || 'cloud';
 
 // --- Cloud (Gemini) config ---
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const GEMINI_EMBED_MODEL = process.env.GEMINI_EMBED_MODEL || 'gemini-embedding-001';
-const GEMINI_LLM_MODEL = process.env.GEMINI_LLM_MODEL || 'gemini-flash-latest';
+const GEMINI_EMBED_MODEL = process.env.GEMINI_EMBED_MODEL || 'text-embedding-004';
+const GEMINI_LLM_MODEL = process.env.GEMINI_LLM_MODEL || 'gemini-1.5-flash';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta';
 
 // --- Local (Ollama) config ---
@@ -118,30 +118,40 @@ async function embed(texts) {
 
 // Google Gemini embeddings (free tier)
 async function embedGemini(texts) {
-  // Use batch API for multiple texts, single API for one
-  if (texts.length === 1) {
-    const response = await axios.post(
-      `${GEMINI_API_URL}/models/${GEMINI_EMBED_MODEL}:embedContent?key=${GEMINI_API_KEY}`,
-      {
-        model: `models/${GEMINI_EMBED_MODEL}`,
-        content: { parts: [{ text: texts[0] }] },
+  const embedModels = [GEMINI_EMBED_MODEL, 'text-embedding-004', 'embedding-001'].filter((v, i, a) => a.indexOf(v) === i);
+  let lastError = null;
+
+  for (const model of embedModels) {
+    try {
+      if (texts.length === 1) {
+        const response = await axios.post(
+          `${GEMINI_API_URL}/models/${model}:embedContent?key=${GEMINI_API_KEY}`,
+          {
+            model: `models/${model}`,
+            content: { parts: [{ text: texts[0] }] },
+          }
+        );
+        return [response.data.embedding.values];
       }
-    );
-    return [response.data.embedding.values];
+
+      const response = await axios.post(
+        `${GEMINI_API_URL}/models/${model}:batchEmbedContents?key=${GEMINI_API_KEY}`,
+        {
+          model: `models/${model}`,
+          requests: texts.map((text) => ({
+            model: `models/${model}`,
+            content: { parts: [{ text }] },
+          })),
+        }
+      );
+      return response.data.embeddings.map((e) => e.values);
+    } catch (err) {
+      lastError = err;
+      console.warn(`Gemini embedding with ${model} failed (${err.message}), trying fallback...`);
+    }
   }
 
-  // Batch embed multiple texts
-  const response = await axios.post(
-    `${GEMINI_API_URL}/models/${GEMINI_EMBED_MODEL}:batchEmbedContents?key=${GEMINI_API_KEY}`,
-    {
-      model: `models/${GEMINI_EMBED_MODEL}`,
-      requests: texts.map((text) => ({
-        model: `models/${GEMINI_EMBED_MODEL}`,
-        content: { parts: [{ text }] },
-      })),
-    }
-  );
-  return response.data.embeddings.map((e) => e.values);
+  throw new Error(lastError?.response?.data?.error?.message || lastError?.message || 'Failed to generate embeddings');
 }
 
 // Ollama embeddings (local)
@@ -461,25 +471,38 @@ async function ensureConclusion(answerText) {
 
 // Google Gemini generation (free tier)
 async function generateGemini(systemPrompt, context, question) {
-  const response = await axios.post(
-    `${GEMINI_API_URL}/models/${GEMINI_LLM_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      contents: [
-        {
-          role: 'user',
-          parts: [
-            { text: `System: ${systemPrompt}\n\nContext:\n${context}\n\nQuestion: ${question}\n\nAnswer:` },
-          ],
-        },
-      ],
-      generationConfig: {
-        temperature: 0.3,
-        maxOutputTokens: 1024,
-      },
-    }
-  );
+  const modelsToTry = [GEMINI_LLM_MODEL, 'gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'].filter((v, i, a) => a.indexOf(v) === i);
+  let lastError = null;
 
-  return response.data.candidates?.[0]?.content?.parts?.[0]?.text || 'No answer generated.';
+  for (const model of modelsToTry) {
+    try {
+      const response = await axios.post(
+        `${GEMINI_API_URL}/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                { text: `System: ${systemPrompt}\n\nContext:\n${context}\n\nQuestion: ${question}\n\nAnswer:` },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 1024,
+          },
+        }
+      );
+
+      const text = response.data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) return text;
+    } catch (err) {
+      lastError = err;
+      console.warn(`Gemini generation with ${model} failed (${err.message}), trying fallback...`);
+    }
+  }
+
+  throw new Error(lastError?.response?.data?.error?.message || lastError?.message || 'Failed to generate answer with Gemini API');
 }
 
 // Ollama generation (local)
