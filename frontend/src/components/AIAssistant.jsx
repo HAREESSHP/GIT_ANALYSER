@@ -150,7 +150,7 @@ export default function AIAssistant({ username, compact = false }) {
           <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
             <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
           </svg>
-          <span>RAG is not configured. Add a free Gemini API key to backend/.env (see RAG_SETUP.md) to enable AI answers.</span>
+          <span>RAG is not configured. Add your GEMINI_API_KEY to Render Environment Variables (or backend/.env) to enable AI answers.</span>
         </div>
       )}
 

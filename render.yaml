@@ -16,3 +16,11 @@ services:
         sync: false
       - key: CORS_ORIGIN
         sync: false
+      - key: RAG_MODE
+        value: cloud
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_EMBED_MODEL
+        value: gemini-embedding-001
+      - key: GEMINI_LLM_MODEL
+        value: gemini-flash-latest
