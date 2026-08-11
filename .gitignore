@@ -33,3 +33,5 @@ Thumbs.db
 *.log
 .cache/
 .turbo/
+.vercel
+.env*

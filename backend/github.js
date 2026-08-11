@@ -8,8 +8,9 @@ const getHeaders = () => {
   const headers = {
     Accept: 'application/vnd.github.v3+json',
   };
-  if (process.env.GITHUB_API_TOKEN && process.env.GITHUB_API_TOKEN.trim() !== '' && !process.env.GITHUB_API_TOKEN.startsWith('your_github_token')) {
-    headers.Authorization = `Bearer ${process.env.GITHUB_API_TOKEN}`;
+  const token = process.env.GITHUB_API_TOKEN ? process.env.GITHUB_API_TOKEN.trim() : '';
+  if (token && !token.startsWith('your_') && !token.includes('your_github')) {
+    headers.Authorization = `Bearer ${token}`;
   }
   return headers;
 };
@@ -19,6 +20,9 @@ export async function getUserProfile(username) {
     const response = await axios.get(`${GITHUB_API_URL}/users/${username}`, { headers: getHeaders() });
     return response.data;
   } catch (error) {
+    if (error.response?.status === 401) {
+      throw new Error('Invalid GitHub API token. Please update GITHUB_API_TOKEN in backend/.env');
+    }
     if (error.response?.status === 404) {
       throw new Error('GitHub user not found');
     }
