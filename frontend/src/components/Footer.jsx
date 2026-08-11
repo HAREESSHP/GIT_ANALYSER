@@ -56,6 +56,7 @@ export default function Footer() {
             <div className="team-member">
               <div className="member-info">
                 <span className="member-name">Ega Pavan Sai Varshith</span>
+                <span className="member-role dev-badge">Developer</span>
                 <span className="member-role deploy-badge">Deployment</span>
               </div>
               <a 
@@ -119,7 +120,7 @@ export default function Footer() {
 
       <div className="footer-bottom">
         <p className="credits-text">
-          Designed & developed by <span className="credit-name">HAREESH</span> & <a href="https://www.linkedin.com/in/rahul-ai-dev" target="_blank" rel="noopener noreferrer" className="credit-link">Rahul</a>
+          Designed & developed by <a href="https://www.linkedin.com/in/pavan-sai-varshith" target="_blank" rel="noopener noreferrer" className="credit-link">Ega Pavan Sai Varshith</a>, <span className="credit-name">HAREESH</span> & <a href="https://www.linkedin.com/in/rahul-ai-dev" target="_blank" rel="noopener noreferrer" className="credit-link">Rahul</a>
         </p>
         <span className="dot-divider">•</span>
         <p className="credits-text">
