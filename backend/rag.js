@@ -473,7 +473,7 @@ async function ensureConclusion(answerText) {
 
 // Google Gemini generation (free tier)
 async function generateGemini(systemPrompt, context, question) {
-  const modelsToTry = [GEMINI_LLM_MODEL, 'gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'].filter((v, i, a) => a.indexOf(v) === i);
+  const modelsToTry = [GEMINI_LLM_MODEL, 'gemini-flash-latest', 'gemini-3.5-flash', 'gemini-pro-latest'].filter((v, i, a) => a.indexOf(v) === i);
   let lastError = null;
 
   for (const model of modelsToTry) {
